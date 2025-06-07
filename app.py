@@ -9,7 +9,7 @@ st.title("🎧 Audio Speed Adjuster")
 st.write("Upload an audio file to adjust its playback speed **without changing its pitch**.")
 
 # Step 1: Upload
-uploaded_file = st.file_uploader("📁 Browse an audio file (.wav or .mp3)", type=["wav", "mp3"])
+uploaded_file = st.file_uploader("Browse an audio file (.wav or .mp3)", type=["wav", "mp3"])
 
 if uploaded_file is not None:
     # Step 2: Read and process the uploaded file
@@ -39,4 +39,4 @@ if uploaded_file is not None:
             mime="audio/wav"
         )
     except Exception as e:
-        st.error(f"⚠️ Error processing file: {e}")
+        st.error(f"⚠ Error processing file: {e}")
