@@ -1,56 +1,42 @@
 import streamlit as st
 import librosa
 import soundfile as sf
-import tempfile
-import os
+import numpy as np
+import io
 
-st.set_page_config(page_title="Audio Speed Adjuster", page_icon="🎧")
+st.set_page_config(page_title="Audio Speed Adjuster", layout="centered")
 st.title("🎧 Audio Speed Adjuster")
-st.markdown("Upload an audio file and change its playback speed **without changing the pitch**.")
+st.write("Upload an audio file to adjust its playback speed **without changing its pitch**.")
 
-# Upload audio file
-uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3"])
-
-# Speed slider
-speed = st.slider("Adjust Speed", min_value=0.5, max_value=2.0, value=1.0, step=0.1)
+# Step 1: Upload
+uploaded_file = st.file_uploader("📁 Browse an audio file (.wav or .mp3)", type=["wav", "mp3"])
 
 if uploaded_file is not None:
-    # Save uploaded file to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_input:
-        temp_input.write(uploaded_file.read())
-        temp_input_path = temp_input.name
-
-    # Load audio with librosa
+    # Step 2: Read and process the uploaded file
+    st.info("Reading the audio file...")
     try:
-        y, sr = librosa.load(temp_input_path)
-    except Exception as e:
-        st.error(f"Error loading audio: {e}")
-        os.remove(temp_input_path)
-        st.stop()
+        y, sr = librosa.load(uploaded_file, sr=None)
+        st.success("Audio file loaded successfully!")
 
-    # Time-stretch without changing pitch
-    try:
-        y_stretched = librosa.effects.time_stretch(y, speed)
-    except Exception as e:
-        st.error(f"Error adjusting speed: {e}")
-        os.remove(temp_input_path)
-        st.stop()
+        # Step 3: Show slider to adjust speed
+        speed = st.slider("🎚️ Choose Playback Speed (1.0 = Normal)", 0.5, 2.0, 1.0, 0.1)
+        if speed != 1.0:
+            y_stretched = librosa.effects.time_stretch(y, speed)
+        else:
+            y_stretched = y
 
-    # Save processed audio to temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_output:
-        sf.write(temp_output.name, y_stretched, sr)
-        temp_output_path = temp_output.name
+        # Step 4: Allow user to listen to adjusted audio
+        st.markdown("### ▶️ Preview Adjusted Audio")
+        buf = io.BytesIO()
+        sf.write(buf, y_stretched, sr, format='WAV')
+        st.audio(buf.getvalue(), format="audio/wav")
 
-    # Playback and download
-    st.audio(temp_output_path, format="audio/wav")
-    with open(temp_output_path, "rb") as f:
+        # Step 5: Download button
         st.download_button(
-            label="Download Adjusted Audio",
-            data=f,
+            label="⬇️ Download Adjusted Audio",
+            data=buf.getvalue(),
             file_name="adjusted_audio.wav",
             mime="audio/wav"
         )
-
-    # Clean up
-    os.remove(temp_input_path)
-    # Do not delete output until download is complete
+    except Exception as e:
+        st.error(f"⚠️ Error processing file: {e}")
