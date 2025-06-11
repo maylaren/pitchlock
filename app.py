@@ -3,13 +3,21 @@ import librosa
 import soundfile as sf
 import numpy as np
 import io
+import base64
 
 st.set_page_config(page_title="Pitch Lock", layout="centered")
 
-# --- HEADER STYLE ---
-st.markdown("""
+# --- Load and Encode Logo ---
+def load_logo_base64(path):
+    with open(path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
+
+logo_base64 = load_logo_base64("logo.png")  # ⬅️ Replace with your logo file
+
+# --- HEADER STYLE & HTML ---
+st.markdown(f"""
     <style>
-        .header {
+        .header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -17,36 +25,38 @@ st.markdown("""
             padding: 10px 30px;
             border-radius: 8px;
             color: white;
-        }
-        .header-left {
+        }}
+        .header-left {{
             display: flex;
             align-items: center;
             gap: 15px;
-        }
-        .header-logo {
+        }}
+        .header-logo {{
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: white;
-        }
-        .header-title {
+            background-image: url("data:image/png;base64,{logo_base64}");
+            background-size: cover;
+            background-position: center;
+        }}
+        .header-title {{
             font-size: 24px;
             font-weight: bold;
-        }
-        .header-center input {
+        }}
+        .header-center input {{
             padding: 5px 15px;
             border-radius: 20px;
             border: none;
             width: 250px;
-        }
-        .header-right button {
+        }}
+        .header-right button {{
             background-color: #6a62d5;
             color: white;
             border: none;
             padding: 6px 16px;
             border-radius: 20px;
             cursor: pointer;
-        }
+        }}
     </style>
     <div class="header">
         <div class="header-left">
@@ -74,7 +84,7 @@ if uploaded_file is not None:
         y, sr = librosa.load(uploaded_file, sr=None)
         st.success("✅ Audio file loaded successfully!")
 
-        # --- TRANSPORT BAR: Speed Slider + Buttons ---
+        # --- TRANSPORT BAR ---
         st.markdown("#### 🎚️ Playback Speed")
         col1, col2, col3 = st.columns([1, 5, 1])
         with col1:
@@ -84,16 +94,13 @@ if uploaded_file is not None:
         with col3:
             pause_button = st.button("⏸ Pause")
 
-        if speed != 1.0:
-            y_stretched = librosa.effects.time_stretch(y, rate=speed)
-        else:
-            y_stretched = y
+        y_stretched = librosa.effects.time_stretch(y, rate=speed) if speed != 1.0 else y
 
-        # --- AUDIO WAVEFORM PLACEHOLDER ---
+        # --- PLACEHOLDER WAVEFORM ---
         st.markdown("##### 📈 Waveform (Placeholder)")
         st.image("https://upload.wikimedia.org/wikipedia/commons/1/1a/Waveform_example.svg", use_column_width=True)
 
-        # --- PREVIEW AUDIO ---
+        # --- AUDIO PREVIEW ---
         st.markdown("#### ▶️ Preview Adjusted Audio")
         buf = io.BytesIO()
         sf.write(buf, y_stretched, sr, format='WAV')
