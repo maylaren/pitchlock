@@ -5,78 +5,81 @@ import numpy as np
 import io
 import base64
 
-st.set_page_config(page_title="Pitch Lock", layout="centered")
+st.set_page_config(page_title="Pitch Lock", layout="wide")
 
 # --- Load and Encode Logo ---
 def load_logo_base64(path):
     with open(path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
-logo_base64 = load_logo_base64("logo.png")  # ⬅️ Replace with your logo file
+logo_base64 = load_logo_base64("logo.png")  # Replace with your own logo path
 
-# --- HEADER STYLE & HTML ---
+# --- HEADER NAVIGATION BAR ---
 st.markdown(f"""
     <style>
-        .header {{
+        .top-nav {{
+            background-color: #0a004f;
+            color: white;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #333;
-            padding: 10px 30px;
-            border-radius: 8px;
-            color: white;
         }}
-        .header-left {{
+        .nav-left {{
             display: flex;
             align-items: center;
             gap: 15px;
         }}
-        .header-logo {{
-            width: 50px;
-            height: 50px;
+        .logo {{
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background-image: url("data:image/png;base64,{logo_base64}");
             background-size: cover;
             background-position: center;
         }}
-        .header-title {{
-            font-size: 24px;
+        .nav-title {{
+            font-size: 22px;
             font-weight: bold;
         }}
-        .header-center input {{
-            padding: 5px 15px;
-            border-radius: 20px;
-            border: none;
-            width: 250px;
+        .search-bar {{
+            flex: 1;
+            display: flex;
+            justify-content: center;
         }}
-        .header-right button {{
-            background-color: #6a62d5;
-            color: white;
-            border: none;
-            padding: 6px 16px;
+        .search-bar input {{
+            width: 300px;
+            padding: 6px 15px;
             border-radius: 20px;
-            cursor: pointer;
+            border: none;
+        }}
+        .nav-right a {{
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: 500;
         }}
     </style>
-    <div class="header">
-        <div class="header-left">
-            <div class="header-logo"></div>
-            <div class="header-title">Pitch Lock</div>
+    <div class="top-nav">
+        <div class="nav-left">
+            <div class="logo"></div>
+            <div class="nav-title">Pitch Lock</div>
         </div>
-        <div class="header-center">
+        <div class="search-bar">
             <input type="text" placeholder="Search..." />
         </div>
-        <div class="header-right">
-            <button>Sign In</button>
+        <div class="nav-right">
+            <a href="#">Help</a>
+            <a href="#">About us</a>
+            <a href="#">Sign In</a>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- MAIN TITLE ---
-st.markdown("### 🎧 Audio Speed Adjuster")
-st.write("Upload audio and adjust its speed **without changing pitch**.")
+# --- Audio Tool Interface ---
+st.markdown("<br><h3 style='text-align: center;'>Smart Audio Time-Stretching</h3>", unsafe_allow_html=True)
+st.write("A web-based audio tool that adjusts playback speed while preserving pitch.")
 
-# --- UPLOAD AUDIO ---
 uploaded_file = st.file_uploader("🎵 Upload Audio File (MP3 or WAV)", type=["mp3", "wav"])
 
 if uploaded_file is not None:
@@ -84,36 +87,52 @@ if uploaded_file is not None:
         y, sr = librosa.load(uploaded_file, sr=None)
         st.success("✅ Audio file loaded successfully!")
 
-        # --- TRANSPORT BAR ---
-        st.markdown("#### 🎚️ Playback Speed")
-        col1, col2, col3 = st.columns([1, 5, 1])
-        with col1:
-            play_button = st.button("⏵ Play")
-        with col2:
-            speed = st.slider("", min_value=0.5, max_value=2.0, value=1.0, step=0.1, format="%.1fx")
-        with col3:
-            pause_button = st.button("⏸ Pause")
+        st.image("5cad8565-4012-4295-ae53-2b443a36364d.png", caption="Waveform", use_column_width=True)
+
+        # Speed Control
+        st.markdown("<div style='text-align: center;'>Speed</div>", unsafe_allow_html=True)
+        speed = st.slider("", min_value=0.5, max_value=2.0, value=1.0, step=0.1, format="%.1fx")
+        st.markdown(f"<div style='text-align: center;'>{speed:.1f}x</div>", unsafe_allow_html=True)
 
         y_stretched = librosa.effects.time_stretch(y, rate=speed) if speed != 1.0 else y
 
-         # --- PLACEHOLDER WAVEFORM ---
-        st.markdown("##### 📈 Waveform (Placeholder)")
-        st.image("waveform.png")
+        # Playback button
+        st.markdown("<div style='text-align: center;'><button style='font-size:24px; border:none;'>▶️</button></div>", unsafe_allow_html=True)
 
-        
-        # --- AUDIO PREVIEW ---
-        st.markdown("#### ▶️ Preview Adjusted Audio")
+        # Audio Output
         buf = io.BytesIO()
         sf.write(buf, y_stretched, sr, format='WAV')
         st.audio(buf.getvalue(), format='audio/wav')
 
-        # --- DOWNLOAD BUTTON ---
+        # Download Button
+        st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
         st.download_button(
-            label="⬇️ Download Adjusted Audio",
+            label="Download File",
             data=buf.getvalue(),
             file_name="adjusted_audio.wav",
-            mime="audio/wav"
+            mime="audio/wav",
+            use_container_width=False
         )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Footer Features
+        st.markdown("""
+            <hr>
+            <div style="display: flex; justify-content: space-around; padding: 20px 0;">
+                <div style="width: 30%; text-align: center;">
+                    <h4>Control Speed Without Losing Tone</h4>
+                    <p>A web-based audio tool that adjusts playback speed while preserving the original pitch. Ideal for musicians, students, and audio engineers.</p>
+                </div>
+                <div style="width: 30%; text-align: center;">
+                    <h4>Smart Audio Time-Stretching</h4>
+                    <p>A web-based audio tool that adjusts playback speed while preserving the original pitch. Ideal for musicians, students, and audio engineers.</p>
+                </div>
+                <div style="width: 30%; text-align: center;">
+                    <h4>Supported File Format</h4>
+                    <p>Supports MP3 and WAV formats. For best results, use WAV for high-quality output.</p>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
     except Exception as e:
         st.error(f"⚠️ Error loading file: {e}")
