@@ -98,7 +98,7 @@ if uploaded_file is not None:
 
         # --- PLACEHOLDER WAVEFORM ---
         st.markdown("##### 📈 Waveform (Placeholder)")
-        st.image("https://upload.wikimedia.org/wikipedia/commons/1/1a/Waveform_example.svg", use_column_width=True)
+        st.image("waveform.png", use_column_width=True)
 
         # --- AUDIO PREVIEW ---
         st.markdown("#### ▶️ Preview Adjusted Audio")
