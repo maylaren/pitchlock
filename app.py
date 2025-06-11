@@ -96,10 +96,6 @@ if uploaded_file is not None:
 
         y_stretched = librosa.effects.time_stretch(y, rate=speed) if speed != 1.0 else y
 
-        # --- PLACEHOLDER WAVEFORM ---
-        st.markdown("##### 📈 Waveform (Placeholder)")
-        st.image("waveform.png")
-
         # --- AUDIO PREVIEW ---
         st.markdown("#### ▶️ Preview Adjusted Audio")
         buf = io.BytesIO()
