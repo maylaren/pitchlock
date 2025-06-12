@@ -87,7 +87,7 @@ if uploaded_file is not None:
         y, sr = librosa.load(uploaded_file, sr=None)
         st.success("✅ Audio file loaded successfully!")
 
-        st.image("5cad8565-4012-4295-ae53-2b443a36364d.png", caption="Waveform", use_column_width=True)
+        st.image("waveform.png", caption="Waveform")
 
         # Speed Control
         st.markdown("<div style='text-align: center;'>Speed</div>", unsafe_allow_html=True)
