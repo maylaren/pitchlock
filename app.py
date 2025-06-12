@@ -12,7 +12,7 @@ def load_logo_base64(path):
     with open(path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
-logo_base64 = load_logo_base64("logo.png")  # Replace with your logo
+logo_base64 = load_logo_base64("logo.png")  # Replace with your own logo path
 
 # --- HEADER NAVIGATION BAR ---
 st.markdown(f"""
@@ -84,8 +84,7 @@ uploaded_file = st.file_uploader("🎵 Upload Audio File (MP3 or WAV)", type=["m
 
 if uploaded_file is not None:
     try:
-        # Load audio with stereo support
-        y, sr = librosa.load(uploaded_file, sr=None, mono=False)
+        y, sr = librosa.load(uploaded_file, sr=None)
         st.success("✅ Audio file loaded successfully!")
 
         st.image("waveform.png", caption="Waveform")
@@ -95,26 +94,14 @@ if uploaded_file is not None:
         speed = st.slider("", min_value=0.5, max_value=2.0, value=1.0, step=0.1, format="%.1fx")
         st.markdown(f"<div style='text-align: center;'>{speed:.1f}x</div>", unsafe_allow_html=True)
 
-        # Time-stretching (supports mono and stereo)
-        if y.ndim == 1:
-            y_stretched = librosa.effects.time_stretch(y, rate=speed)
-        else:
-            y_stretched = np.vstack([
-                librosa.effects.time_stretch(y[ch], rate=speed)
-                for ch in range(y.shape[0])
-            ])
+        y_stretched = librosa.effects.time_stretch(y, rate=speed) if speed != 1.0 else y
 
-        # Write to buffer (transpose if stereo)
-        buf = io.BytesIO()
-        if y_stretched.ndim == 2:
-            sf.write(buf, y_stretched.T, sr, format='WAV')
-        else:
-            sf.write(buf, y_stretched, sr, format='WAV')
-
-        # Playback button (decorative only)
+        # Playback button
         st.markdown("<div style='text-align: center;'><button style='font-size:24px; border:none;'>▶️</button></div>", unsafe_allow_html=True)
 
         # Audio Output
+        buf = io.BytesIO()
+        sf.write(buf, y_stretched, sr, format='WAV')
         st.audio(buf.getvalue(), format='audio/wav')
 
         # Download Button
@@ -138,7 +125,7 @@ if uploaded_file is not None:
                 </div>
                 <div style="width: 30%; text-align: center;">
                     <h4>Smart Audio Time-Stretching</h4>
-                    <p>Powered by Librosa, this app lets you stretch time without sacrificing pitch or clarity.</p>
+                    <p>A web-based audio tool that adjusts playback speed while preserving the original pitch. Ideal for musicians, students, and audio engineers.</p>
                 </div>
                 <div style="width: 30%; text-align: center;">
                     <h4>Supported File Format</h4>
