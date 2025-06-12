@@ -84,7 +84,7 @@ uploaded_file = st.file_uploader("🎵 Upload Audio File (MP3 or WAV)", type=["m
 
 if uploaded_file is not None:
     try:
-        y, sr = librosa.load(uploaded_file, sr=None)
+        y, sr = librosa.load(uploaded_file, sr=None, mono=False)
         st.success("✅ Audio file loaded successfully!")
 
         st.image("waveform.png", caption="Waveform")
