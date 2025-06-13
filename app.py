@@ -1,9 +1,11 @@
 import streamlit as st
 import librosa
+import librosa.display
 import soundfile as sf
 import numpy as np
 import io
 import base64
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Pitch Lock", layout="wide")
 
@@ -62,12 +64,25 @@ if uploaded_file is not None:
         y, sr = librosa.load(uploaded_file, sr=None, mono=False)
         st.success("✅ Audio file loaded successfully!")
 
-        st.image("waveform.png", caption="Waveform")
+        # --- Display Original Waveform ---
+        st.markdown("#### 📈 Original Audio Waveform")
+        fig, ax = plt.subplots(figsize=(10, 3))
+        if y.ndim == 1:
+            librosa.display.waveshow(y, sr=sr, ax=ax)
+        else:
+            for ch in y:
+                librosa.display.waveshow(ch, sr=sr, ax=ax)
+        ax.set_title("Waveform (Original Audio)")
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Amplitude")
+        st.pyplot(fig)
 
+        # Speed Control
         st.markdown("<div style='text-align: center;'>Speed</div>", unsafe_allow_html=True)
         speed = st.slider("", min_value=0.5, max_value=2.0, value=1.0, step=0.1, format="%.1fx")
         st.markdown(f"<div style='text-align: center;'>{speed:.1f}x</div>", unsafe_allow_html=True)
 
+        # Time-stretching
         if y.ndim == 1:
             y_stretched = librosa.effects.time_stretch(y, rate=speed)
         else:
@@ -76,6 +91,20 @@ if uploaded_file is not None:
                 for ch in range(y.shape[0])
             ])
 
+        # --- Display Time-Stretched Waveform ---
+        st.markdown("#### 🌀 Time-Stretched Waveform")
+        fig2, ax2 = plt.subplots(figsize=(10, 3))
+        if y_stretched.ndim == 1:
+            librosa.display.waveshow(y_stretched, sr=sr, ax=ax2)
+        else:
+            for ch in y_stretched:
+                librosa.display.waveshow(ch, sr=sr, ax=ax2)
+        ax2.set_title(f"Waveform ({speed:.1f}x Speed)")
+        ax2.set_xlabel("Time (s)")
+        ax2.set_ylabel("Amplitude")
+        st.pyplot(fig2)
+
+        # --- Audio Output ---
         buf = io.BytesIO()
         if y_stretched.ndim == 2:
             sf.write(buf, y_stretched.T, sr, format='WAV')
@@ -95,6 +124,7 @@ if uploaded_file is not None:
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
+        # --- Footer Section ---
         st.markdown("""
             <hr>
             <div style="display: flex; justify-content: space-around; padding: 20px 0;">
