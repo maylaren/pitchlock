@@ -12,7 +12,7 @@ def load_logo_base64(path):
     with open(path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
-logo_base64 = load_logo_base64("logo.png")  # Replace with your logo
+logo_base64 = load_logo_base64("logo.png")  # Replace with your logo file
 
 # --- HEADER NAVIGATION BAR ---
 st.markdown(f"""
@@ -53,12 +53,6 @@ st.markdown(f"""
             border-radius: 20px;
             border: none;
         }}
-        .nav-right a {{
-            color: white;
-            margin-left: 20px;
-            text-decoration: none;
-            font-weight: 500;
-        }}
     </style>
     <div class="top-nav">
         <div class="nav-left">
@@ -67,9 +61,6 @@ st.markdown(f"""
         </div>
         <div class="search-bar">
             <input type="text" placeholder="Search..." />
-        </div>
-        <div class="nav-right">
-            <a href="#about">About us</a>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -118,7 +109,6 @@ if uploaded_file is not None:
         )
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Footer Features
         st.markdown("""
             <hr>
             <div style="display: flex; justify-content: space-around; padding: 20px 0;">
@@ -142,9 +132,10 @@ if uploaded_file is not None:
 else:
     st.info("📂 Please upload an audio file to get started.")
 
-# --- About Us Section ---
-with st.expander("📘 About Pitch Lock", expanded=False):
+# --- About Pitch Lock Expander ---
+st.markdown("<hr>", unsafe_allow_html=True)
+with st.expander("📘 About Pitch Lock"):
     st.markdown("""
-        **Pitch Lock** is a lightweight, user-friendly web app that allows users to **change audio playback speed without altering pitch**.  
-        Whether you're a **musician**, **language learner**, or **audio editor**, Pitch Lock helps you control tempo with clarity and precision.
+    **Pitch Lock** is a user-friendly audio processing web app that allows users to change the playback speed of MP3 and WAV files **without altering their pitch**.  
+    It's perfect for musicians, educators, language learners, and audio engineers who need precision and clarity while modifying tempo.
     """)
