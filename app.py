@@ -69,9 +69,7 @@ st.markdown(f"""
             <input type="text" placeholder="Search..." />
         </div>
         <div class="nav-right">
-            <a href="#">Help</a>
-            <a href="#">About us</a>
-            <a href="#">Sign In</a>
+            <a href="#about">About us</a>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -84,18 +82,15 @@ uploaded_file = st.file_uploader("🎵 Upload Audio File (MP3 or WAV)", type=["m
 
 if uploaded_file is not None:
     try:
-        # Load audio with stereo support
         y, sr = librosa.load(uploaded_file, sr=None, mono=False)
         st.success("✅ Audio file loaded successfully!")
 
         st.image("waveform.png", caption="Waveform")
 
-        # Speed Control
         st.markdown("<div style='text-align: center;'>Speed</div>", unsafe_allow_html=True)
         speed = st.slider("", min_value=0.5, max_value=2.0, value=1.0, step=0.1, format="%.1fx")
         st.markdown(f"<div style='text-align: center;'>{speed:.1f}x</div>", unsafe_allow_html=True)
 
-        # Time-stretching (supports mono and stereo)
         if y.ndim == 1:
             y_stretched = librosa.effects.time_stretch(y, rate=speed)
         else:
@@ -104,20 +99,15 @@ if uploaded_file is not None:
                 for ch in range(y.shape[0])
             ])
 
-        # Write to buffer (transpose if stereo)
         buf = io.BytesIO()
         if y_stretched.ndim == 2:
             sf.write(buf, y_stretched.T, sr, format='WAV')
         else:
             sf.write(buf, y_stretched, sr, format='WAV')
 
-        # Playback button (decorative only)
         st.markdown("<div style='text-align: center;'><button style='font-size:24px; border:none;'>▶️</button></div>", unsafe_allow_html=True)
-
-        # Audio Output
         st.audio(buf.getvalue(), format='audio/wav')
 
-        # Download Button
         st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
         st.download_button(
             label="Download File",
@@ -151,3 +141,10 @@ if uploaded_file is not None:
         st.error(f"⚠️ Error loading file: {e}")
 else:
     st.info("📂 Please upload an audio file to get started.")
+
+# --- About Us Section ---
+with st.expander("📘 About Pitch Lock", expanded=False):
+    st.markdown("""
+        **Pitch Lock** is a lightweight, user-friendly web app that allows users to **change audio playback speed without altering pitch**.  
+        Whether you're a **musician**, **language learner**, or **audio editor**, Pitch Lock helps you control tempo with clarity and precision.
+    """)
