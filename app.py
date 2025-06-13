@@ -22,10 +22,10 @@ st.markdown(f"""
             color: white;
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }}
-        .nav-left {{
+        .nav-center {{
             display: flex;
             align-items: center;
             gap: 15px;
@@ -39,28 +39,14 @@ st.markdown(f"""
             background-position: center;
         }}
         .nav-title {{
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-        }}
-        .search-bar {{
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }}
-        .search-bar input {{
-            width: 300px;
-            padding: 6px 15px;
-            border-radius: 20px;
-            border: none;
         }}
     </style>
     <div class="top-nav">
-        <div class="nav-left">
+        <div class="nav-center">
             <div class="logo"></div>
             <div class="nav-title">Pitch Lock</div>
-        </div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search..." />
         </div>
     </div>
 """, unsafe_allow_html=True)
